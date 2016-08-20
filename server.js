@@ -35,7 +35,6 @@ app.get('/todos/:id', function(req, res){
         }
     }
     if (!matchedTodo){
-        console.log("gg");
         res.status(404).send();
     }else {
         res.json(matchedTodo);
@@ -43,5 +42,5 @@ app.get('/todos/:id', function(req, res){
 });
 
 app.listen(PORT, function(){
-   console.log('Express listenin on port: '+PORT+"!");
+   console.log('Express listening on port: '+PORT+"!");
 });
