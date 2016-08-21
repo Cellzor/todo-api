@@ -111,8 +111,23 @@ app.put('/todos/:id', function(req, res){
     }).catch(function (e) {
         res.status(500).send();
     });
+});
 
-
+app.post('/users', function(req, res){
+     var attributes = _.pick(req.body, 'email', 'password');
+    db.user.create(attributes).then(function(user){
+        if(!!user){
+            res.json(user);
+        }
+    }, function(e){
+        res.status(400).json({
+            error: "User couldn't be created."
+        })
+    }).catch(function (e) {
+        res.status(500).json({
+            error: "Unable to handle your request, due to bad data."
+        });
+    });
 });
 
 db.sequelize.sync().then(function (){
