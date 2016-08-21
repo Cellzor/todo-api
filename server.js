@@ -4,11 +4,11 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
+var db = require('./db.js');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
 var todos = [];
-var todoNextId = 1;
 
 //setup middleware
 app.use(bodyParser.json()); //parse body to JSON
@@ -52,17 +52,13 @@ app.get('/todos/:id', function(req, res){
 });
 
 app.post('/todos', function(req, res){
-    var body = _.pick(req.body, 'description', 'id', 'completed');    //middleware parsed body to JSON before coming here
+    var body = _.pick(req.body, 'description', 'completed');    //middleware parsed body to JSON before coming here
 
-    //trim removes spaces before and after "   Test Test   " > "Test Test"
-    if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
-        return res.status(400).send(); //400 - incorrect data was provided
-    }
-    body.id = todoNextId++;
-    body.description = body.description.trim();
-
-    todos.push(body);
-    res.json(body);
+    db.todo.create(body).then(function(todo){
+        res.json(todo.toJSON);
+    }).catch(function(e){
+        res.status(404).json(e);
+    });
 });
 
 app.delete('/todos/:id', function(req, res){
@@ -104,6 +100,9 @@ app.put('/todos/:id', function(req, res){
     res.json(matchedTodo);
 });
 
-app.listen(PORT, function(){
-   console.log('Express listening on port: '+PORT+"!");
+db.sequelize.sync().then(function (){
+    app.listen(PORT, function(){
+        console.log('Express listening on port: '+PORT+"!");
+    });
 });
+
