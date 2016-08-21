@@ -3,6 +3,7 @@
  */
 var express = require('express');
 var bodyParser = require('body-parser');
+var _ = require('underscore');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -22,12 +23,8 @@ app.get('/todos', function(req, res){
 
 app.get('/todos/:id', function(req, res){
     var todoId = parseInt(req.params.id, 10);
-    var matchedTodo;
-    for(var i=0; i<todos.length; i++){
-        if(todos[i].id === todoId){
-            matchedTodo = todos[i];
-        }
-    }
+    var matchedTodo = _.findWhere(todos, {id: todoId});
+
     if (!matchedTodo){
         res.status(404).send();
     }else {
@@ -36,14 +33,16 @@ app.get('/todos/:id', function(req, res){
 });
 
 app.post('/todos', function(req, res){
-    var body = req.body;    //middleware parses this to JSON before coming here
-    console.log('description ' + body.description);
-    todos.push({
-        id: todoNextId,
-        description: body.description,
-        completed: body.completed
-    });
-    todoNextId++;
+    var body = _.pick(req.body, 'description', 'id', 'completed');    //middleware parsed body to JSON before coming here
+
+    //trim removes spaces before and after "   Test Test   " > "Test Test"
+    if(!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
+        return res.status(400).send(); //400 - incorrect data was provided
+    }
+    body.id = todoNextId++;
+    body.description = body.description.trim();
+
+    todos.push(body);
     res.json(body);
 });
 
