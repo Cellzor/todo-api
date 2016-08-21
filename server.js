@@ -84,42 +84,35 @@ app.delete('/todos/:id', function(req, res){
     }).catch(function (e) {
         res.status(500).send();
     });
-
-    /*var matchedTodo = _.findWhere(todos, {id: todoId});
-
-    if(matchedTodo){
-        todos = _.without(todos, matchedTodo);
-        res.json(matchedTodo);
-    }else {
-        res.status(404).json({"error": "no todo found with that id"});
-    }*/
-
 });
 
 app.put('/todos/:id', function(req, res){
     var todoId = parseInt(req.params.id, 10);
-    var matchedTodo = _.findWhere(todos, {id: todoId});
     var body = _.pick(req.body, 'description', 'completed');
-    var validAttributes = {};
+    var attributes = {};
 
-    if(!matchedTodo){
-        return res.status(404).send();
+    if (body.hasOwnProperty('completed')){
+        attributes.completed = body.completed;
+    }
+    if (body.hasOwnProperty('description')){
+        attributes.description = body.description;
     }
 
-    if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)){
-        validAttributes.completed = body.completed;
-    } else if(body.hasOwnProperty('completed')){
-        return res.status(400).send();
-    }
+    db.todo.findById(todoId).then(function(todo){
+        if(!!todo){
+            todo.update(attributes).then(function () {
+                res.json(todo.toJSON());
+            }, function (e) {
+                res.status(400).json(e);    //executes on locked db
+            });
+        } else {
+            res.status(404).send();
+        }
+    }).catch(function (e) {
+        res.status(500).send();
+    });
 
-    if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0){
-        validAttributes.description = body.description;
-    } else if (body.hasOwnProperty('description')){
-        return res.status(400).send();
-    }
 
-    _.extend(matchedTodo, validAttributes); //Object in JS are passed ny reference not value, no need to assign the returned value
-    res.json(matchedTodo);
 });
 
 db.sequelize.sync().then(function (){
