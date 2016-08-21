@@ -1,4 +1,4 @@
-/**
+ /**
  * Created by Christian on 2016-08-21.
  */
 module.exports = function (sequelize, dataTypes){
@@ -16,6 +16,14 @@ module.exports = function (sequelize, dataTypes){
             allowNull: false,
             validate: {
                 len: [7, 100]
+            }
+        }
+    }, {
+        hooks: {
+            beforeValidate: function(user, options){
+                if(typeof user.email === 'string') {
+                    user.email = user.email.toLowerCase();
+                }
             }
         }
     });
