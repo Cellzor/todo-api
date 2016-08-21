@@ -42,13 +42,25 @@ app.get('/todos', function(req, res){
 
 app.get('/todos/:id', function(req, res){
     var todoId = parseInt(req.params.id, 10);
-    var matchedTodo = _.findWhere(todos, {id: todoId});
 
-    if (!matchedTodo){
-        res.status(404).send();
-    }else {
-        res.json(matchedTodo);
-    }
+    db.todo.findById(todoId).then(function(todo){
+        if(!!todo){ //converts a non-boolean to an inverted boolean, then invert it again.
+            res.json(todo.toJSON());
+        }else{
+            res.status(404).send();
+        }
+    }).catch(function(e){
+        res.status(500).send();
+    });
+    //use sequalize to return or respond with 404, overall error send back 500
+
+    // var matchedTodo = _.findWhere(todos, {id: todoId});
+    //
+    // if (!matchedTodo){
+    //     res.status(404).send();
+    // }else {
+    //     res.json(matchedTodo);
+    // }
 });
 
 app.post('/todos', function(req, res){
