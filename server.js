@@ -58,7 +58,7 @@ app.post('/todos', function(req, res){
     var body = _.pick(req.body, 'description', 'completed');    //middleware parsed body to JSON before coming here
 
     db.todo.create(body).then(function(todo){
-        res.json(todo.toJSON);
+        res.json(todo.toJSON());
     }).catch(function(e){
         res.status(404).json(e);
     });
