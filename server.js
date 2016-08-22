@@ -117,7 +117,7 @@ app.post('/users', function(req, res){
      var attributes = _.pick(req.body, 'email', 'password');
     db.user.create(attributes).then(function(user){
         if(!!user){
-            res.json(user);
+            res.json(user.toPublicJSON());
         }
     }, function(e){
         res.status(400).json({
