@@ -7,7 +7,7 @@ module.exports = function (db) {
         requireAuthentication : function (req, res, next) {
             var token = req.get('Auth'); //pulls token from users header set during login
             db.user.findByToken(token).then(function(user){
-                req.user = user;
+                req.user = user;    //following function has req modified by this
                 next();
             }, function (e) {
                 res.status(401).send();

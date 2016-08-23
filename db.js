@@ -26,4 +26,7 @@ db.user = sequelize.import(__dirname + '/models/user.js');
 db.sequelize = sequelize;   //instance
 db.Sequelize = Sequelize;   //Library
 
+db.todo.belongsTo(db.user);
+db.user.hasMany(db.todo);
+
 module.exports = db;
